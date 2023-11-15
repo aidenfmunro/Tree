@@ -27,7 +27,7 @@ struct String
 
 struct Node
 {
-    /* char* */ int data;
+    int data;
 
     Node* parent;
 
@@ -49,13 +49,13 @@ ErrorCode CreateTree(Tree* tree);
 
 ErrorCode DestroyTree(Tree* tree);
 
-Node* InsertLeft(Tree* tree, Node* node, /* char* */ int data);
+ErrorCode DumpTreeGraph(Node* node, const char* filename);
 
-Node* InsertRight(Tree* tree, Node* node, /* char* */ int data);
+Node* InsertLeft(Tree* tree, Node* node, int data);
+
+Node* InsertRight(Tree* tree, Node* node, int data);
 
 ErrorCode PrintTree(Node* node, FILE* outFile);
-
-ErrorCode PrintTreeGraph(Node* node, FILE* outFile);
 
 ErrorCode checkTreeLinks(Tree* tree, Node* node, size_t* counter);
 

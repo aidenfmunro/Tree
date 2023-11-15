@@ -1,6 +1,10 @@
 #include "tree.h"
 #include "utils.h"
 
+ErrorCode PrintTree(Node* node, FILE* outFile);
+
+ErrorCode printTreeGraph(Node* node, FILE* outFile);
+
 ErrorCode CreateTree(Tree* tree)
 {
     AssertSoft(tree, NULL_PTR);
@@ -33,8 +37,6 @@ ErrorCode deleteNode(Node* node)
 
     free(node); 
 
-    /* free(node->data); */
-
     return OK;
 }
 
@@ -60,13 +62,6 @@ Node* InsertLeft(Tree* tree, Node* node, /* char* */ int data)
 
     if (tree->size == 0)
     {
-        /*
-        SafeCalloc(tempData, strlen(data) + 1, char, NULL);
-
-        tree->root->data = tempData;
-        
-        strcpy(tree->root->data, data);
-        */
         tree->root->data = data;
 
         tree->size++;
@@ -88,14 +83,6 @@ Node* InsertLeft(Tree* tree, Node* node, /* char* */ int data)
 
     newNode->data = data;
 
-    /*
-    SafeCalloc(newData, strlen(data) + 1, char, NULL);
-
-    newNode->data = newData;
-
-    strcpy(newNode->data, newData);
-    */
-
     node->left = newNode;
     newNode->parent = node;
 
@@ -104,21 +91,13 @@ Node* InsertLeft(Tree* tree, Node* node, /* char* */ int data)
     return newNode;
 }
 
-Node* InsertRight(Tree* tree, Node* node, /* char* */ int data)
+Node* InsertRight(Tree* tree, Node* node, int data)
 {
     AssertSoft(tree, NULL);
     AssertSoft(node, NULL);
 
     if (tree->size == 0)
     {
-        /*
-        SafeCalloc(tempData, strlen(data) + 1, char, NULL);
-
-        tree->root->data = tempData;
-
-        strcpy(tree->root->data, data);
-        */
-
         tree->root->data = data;
 
         tree->size++;
@@ -140,14 +119,6 @@ Node* InsertRight(Tree* tree, Node* node, /* char* */ int data)
 
     newNode->data = data;
 
-    /*
-    SafeCalloc(newData, strlen(data) + 1, char, NULL);
-
-    newNode->data = newData;
-
-    strcpy(newNode->data, newData);
-    */
-
     node->right = newNode;
     newNode->parent = node;
 
@@ -160,7 +131,7 @@ ErrorCode checkTreeLinks(Tree* tree, Node* node, size_t* counter)
 {
     AssertSoft(tree, NULL_PTR);
     
-    AssertSoft(node, NULL_PTR); // should I assert here?
+    AssertSoft(node, NULL_PTR); 
 
     (*counter)++;
 
@@ -191,7 +162,7 @@ ErrorCode PrintTree(Node* node, FILE* outFile)
 
     PrintTree(node->left, outFile);
 
-    fprintf(outFile, " "SPECIFIER" ", node->data); // change back to %s
+    fprintf(outFile, " "SPECIFIER" ", node->data); 
 
     PrintTree(node->right, outFile);
 
@@ -200,7 +171,24 @@ ErrorCode PrintTree(Node* node, FILE* outFile)
     return OK;
 }
 
-ErrorCode PrintTreeGraph(Node* node, FILE* outFile)
+ErrorCode DumpTreeGraph(Node* node, const char* filename)
+{
+    FILE* outFile = fopen(filename, "w+");
+
+    fprintf(outFile, "  digraph tree"
+                     "  {\n"
+                     "  node [shape = \"circle\", style = \"filled\", fillcolor = \"blue\", fontcolor = \"#FFFFFF\", margin = \"0.01\"];\n"
+                     "  rankdir = \"TB\";\n\n"
+                     "  label = \"Tree Dump\";\n");
+
+    printTreeGraph(node, outFile);
+
+    fprintf(outFile, "  }");
+
+    fclose(outFile);
+}
+
+ErrorCode printTreeGraph(Node* node, FILE* outFile)
 {
     if (node->left == NULL && node->right == NULL)
         fprintf(outFile, "  \"%d\" [shape = \"record\", fillcolor = \"red\", label = \"{%d | parent\\n%p | <f0> pos\\n%p| left\\n%p | right\\n%p\\n}\"];\n", node->data, node->data, node->parent, node, node->left, node->right);
@@ -222,10 +210,10 @@ ErrorCode PrintTreeGraph(Node* node, FILE* outFile)
             fprintf(outFile, "  edge [color=\"#000000\"];\n");
         }
 
-        PrintTreeGraph(node->left, outFile);
+        printTreeGraph(node->left, outFile);
     }
 
-    if (node->right != nullptr)
+    if (node->right != NULL)
     {
         if (node->right->parent == node)
         {
@@ -240,7 +228,7 @@ ErrorCode PrintTreeGraph(Node* node, FILE* outFile)
             fprintf(outFile, "  edge [color=\"#000000\"];\n");
         }
 
-        PrintTreeGraph(node->right, outFile);
+        printTreeGraph(node->right, outFile);
     }
     
     return OK;
